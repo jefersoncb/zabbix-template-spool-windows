@@ -1,0 +1,29 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: 7df96b18c230490a9a0a9e2307226338
+      name: Templates
+  templates:
+    - uuid: ffc0b966f00a4513a80702b1bb31e361
+      template: 'Windows Spool'
+      name: 'Windows Spool'
+      groups:
+        - name: Templates
+      discovery_rules:
+        - uuid: 86b6ba8b75684331a136ae5d05bd3af6
+          name: 'Printer Discovery'
+          key: printers.discovery
+          delay: 1h
+          item_prototypes:
+            - uuid: 38cceeeae31547449b30f280a930ecfa
+              name: 'Spool - {#PRINTERNAME}'
+              key: 'spool.print.count[{#PRINTERNAME}]'
+              trigger_prototypes:
+                - uuid: 962823f015f84875a572089637c2d66f
+                  expression: 'last(/Windows Spool/spool.print.count[{#PRINTERNAME}])>30'
+                  name: 'Spool {#PRINTERNAME} in: {ITEM.VALUE}'
+                  priority: AVERAGE
+          preprocessing:
+            - type: JSONPATH
+              parameters:
+                - '$.data[*]'
